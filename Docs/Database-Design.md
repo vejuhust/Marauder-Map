@@ -7,7 +7,6 @@ We use a graph database, [Neoj4](http://www.neo4j.org), in this project to adapt
 Nodes
 ------------
 
-
 ### Summary
 
 * Line
@@ -22,6 +21,7 @@ __Line__ represents bus routes, the same route with different directions should 
 | Property       | Type             | Note                          |
 | :------------- | :--------------- | :---------------------------- |
 | __guid__       | string           | unique identity in guid       |
+| sibling*       | line.guid        | guid of the same route with opposite direction |
 | name           | string           | display name                  |
 | direction      | string           | usually last station          |
 | is_active      | boolean          | is it available now           |
@@ -31,9 +31,9 @@ __Line__ represents bus routes, the same route with different directions should 
 | station        | station.id [ ]   | id of stations on the route   |
 | bus*           | bus.tag [ ]      | plate number of buses on the route |
 
-> N.B. 
-> __unique identity__ means unique identity of the nodes. 
-> asterisk* means it might not be stored explicitly because it can be calculated from other data stored. 
+> N.B.    
+> __unique identity__ means unique identity of the nodes.     
+> asterisk* means it might not be stored explicitly because it can be calculated from other data stored.     
 
 
 ### Bus
@@ -61,10 +61,26 @@ __Station__ represents bus stops on a __line__.
 | :------------- | :--------------- | :---------------------------- |
 | __code__       | string           | unique identity code          |
 | name           | string           | display name                  |
-| sibling        | station.code     | code of station on the other side of the road |
+| sibling*       | station.code     | code of station on the other side of the road |
 | geo_road       | string           | road in its address           |
 | geo_side       | string           | on which side of the road     |
 | geo_lat        | double           | latitude of the station       |
 | geo_long       | double           | longitude of the station      |
 | line*          | line.guid [ ]    | guid of lines contain the station | 
+
+
+
+Relationships
+------------
+
+### Summary
+
+| From           | To             | Name           |
+| :------------- | -------------: | :------------: |
+| Line           | Line           | Sibling        |
+| Line           | Station        | Contain        |
+| Bus            | Line           | Serve As       |
+| Bus            | Station        | Stop At        |
+| Station        | Station        | Connect        |
+| Station        | Station        | Sibling        |
 
