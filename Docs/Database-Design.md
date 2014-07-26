@@ -28,6 +28,7 @@ __Line__ represents bus routes, the same route with different directions should 
 | shape_lat      | double [ ]       | latitude of shape points      |
 | shape_long     | double [ ]       | longitude of shape points     |
 | shape_dist     | double [ ]       | distance traveled along shapes from the first shape point |
+| shape_station  | string [ ]       | station code if the point is a station, or empty |
 | station        | station.id [ ]   | id of stations on the route   |
 | bus*           | bus.tag [ ]      | plate number of buses on the route |
 
