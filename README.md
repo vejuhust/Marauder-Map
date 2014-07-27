@@ -16,7 +16,6 @@ Raw transit data from internal and external providers
 Crawlers for data from external providers
 
 ### ../Crawlers/Basic
-Crawlers for basic transit information, which is used to create the database for the first time
+Crawlers for basic transit information, which is used to create the database from scratch
 
-
-
+ 
