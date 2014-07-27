@@ -30,7 +30,7 @@ It contains details of the routes:
 ## Get Station Info
 1. Firstly, use `../Import/merge_line_info.py` to extract line info from raw data in `../Data/External/`.       
 2. Secondly, use `../Import/merge_line_route.py` to extract route info from raw data in `../Data/External/`.       
-3. Thirdly, use `../Import/import_external.py` to filter out a station code and name list from the results in previous steps.        
+3. Thirdly, use `../Import/merge_station_info.py` to filter out a station code and name list from the results in previous steps.        
 4. Finally, use `../Crawlers/Basic/get_station_detail.py` with the list to retrieve `../Data/External/station_detail.json`.        
 
 It contains details of the stations:
