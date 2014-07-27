@@ -16,7 +16,7 @@ Nodes
 
 ### Line
 
-__Line__ represents bus routes, the same route with different directions should be treated as different liens.
+__Line__ represents bus routes, the same route with different directions should be treated as different lines.
 
 | Property       | Type             | Note                          |
 | :------------- | :--------------- | :---------------------------- |
@@ -76,12 +76,12 @@ Relationships
 
 ### Summary
 
-| From           | To             | Name           |
-| :------------- | -------------: | :------------: |
-| Line           | Line           | Sibling        |
-| Line           | Station        | Contain        |
-| Bus            | Line           | Serve As       |
-| Bus            | Station        | Stop At        |
-| Station        | Station        | Connect        |
-| Station        | Station        | Sibling        |
+| From           | To             | Name            |
+| :------------- | -------------: | :-------------: |
+| Line           | Line           | Sibling Line    |
+| Line           | Station        | Contain         |
+| Bus            | Line           | Serve As        |
+| Bus            | Station        | Stop At         |
+| Station        | Station        | Connect         |
+| Station        | Station        | Sibling Station |
 
