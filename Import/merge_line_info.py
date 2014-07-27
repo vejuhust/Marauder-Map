@@ -7,7 +7,7 @@ import json
 
 
 #cat ../Data/External/lines*.json | grep guid | awk {"print tolower($_)"} | sort | uniq | cut -d '"' -f4 | wc
-datedir = "../Data/External/"
+datadir = "../Data/External/"
 
 
 def load_json(filename):
@@ -58,9 +58,9 @@ def filter_round_bus(data):
 
 if __name__ == '__main__':
     data = {}
-    for filename in os.listdir(datedir):
+    for filename in os.listdir(datadir):
         if filename.startswith("lines") and filename.endswith(".json"):
-            raw = load_json(datedir + filename)
+            raw = load_json(datadir + filename)
             distill_data(data, raw)
     #filter_round_bus(data)
     save_file("Merged/line_info.json", data)

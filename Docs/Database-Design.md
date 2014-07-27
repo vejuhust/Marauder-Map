@@ -24,7 +24,10 @@ __Line__ represents bus routes, the same route with different directions should 
 | sibling*       | line.guid        | guid of the same route with opposite direction |
 | name           | string           | display name                  |
 | direction      | string           | usually last station          |
-| is_active      | boolean          | is it available now           |
+| time_start     | datetime         | departure time of the first bus |
+| time_end       | datetime         | departure time of the last bus |
+| duration       | datetime         | ideal time interval between two buses |
+| is_active*     | boolean          | is it available now           |
 | shape_lat      | double [ ]       | latitude of shape points      |
 | shape_long     | double [ ]       | longitude of shape points     |
 | shape_dist     | double [ ]       | distance traveled along shapes from the first shape point |

@@ -6,7 +6,7 @@ import os
 import json
 
 
-datedir = "../Data/External/"
+datadir = "../Data/External/"
 offset = 11
 errata = [
     {
@@ -65,9 +65,9 @@ def verify_data(data):
 
 if __name__ == '__main__':
     data = {}
-    for filename in os.listdir(datedir):
+    for filename in os.listdir(datadir):
         if filename.startswith("line") and filename.endswith(".txt"):
-            raw = extract_data(datedir + filename)
+            raw = extract_data(datadir + filename)
             guid = raw["call_guid"].lower().strip()
             data[guid] = raw["response"]
     correct_data(data)
