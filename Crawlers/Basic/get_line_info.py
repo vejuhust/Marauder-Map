@@ -13,6 +13,7 @@ lineinfo_url = "http://content.2500city.com/Json?method=SearchBusLine&lineName=%
 data_filename = "lines.json"
 guid_set = set()
 
+
 def notification(message):
     print '[%s] %s' % (time.strftime('%a, %d %b %Y %H:%M:%S %Z', time.localtime()), message)
 
@@ -67,3 +68,4 @@ if __name__ == '__main__':
         second = random.choice(seconds)
         notification("Line %d done! %d lines in total! Gonna rest for %s seconds" % (line_number, len(data), second))
         time.sleep(second)
+
