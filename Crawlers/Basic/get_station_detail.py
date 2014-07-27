@@ -11,7 +11,7 @@ import random
 
 station_list_filename = "../../Import/Merged/station_info.json"
 trailing_list = [u"东", u"西", u"南", u"北", u"②"]
-additonal_keyword = [u"榭雨街"]
+additonal_keyword = [u"榭雨街", u"斜塘老街区"]
 
 api_url_template = "http://content.2500city.com/Json?method=SearchBusStation&standName=%s"
 seconds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
