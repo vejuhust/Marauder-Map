@@ -31,7 +31,17 @@ def merge_detail(raw, data):
             for station in stations:
                 code = station["NoteGuid"]
                 if code not in data:
-                    data[code] = station
+                    if len(station["Sect"]) > 0 and station["Sect"] != station["Road"]:
+                        address_parts = [station["Canton"], station["Road"], u"近", station["Sect"], u"交叉口处"]
+                    else:
+                        address_parts = [station["Canton"], station["Road"]]
+                    address = "".join([part.strip() for part in address_parts ])
+                    data[code] = {
+                        "code" : code.upper().strip(),
+                        "name" : station["Name"].strip(),
+                        "geo_side" : station["Direct"].strip(),
+                        "geo_road" : address
+                    }
     return data
 
 if __name__ == '__main__':
