@@ -96,7 +96,8 @@ bus = [
         "arrival_station" : "PPX",
         "arrival_line" : "e31d7bb3-ba4c-4e24-85e8-95e9d0f4d49e",
         "next_station" : "RBC",
-        "eta_duration" : 342, 
+        "next_dist" : 730.5372,
+        "eta_duration" : 342,
     },
     {
         "tag" : u"苏E-2N288",
@@ -104,6 +105,7 @@ bus = [
         "arrival_station" : "RBC",
         "arrival_line" : "e31d7bb3-ba4c-4e24-85e8-95e9d0f4d49e",
         "next_station" : "PPU",
+        "next_dist" : 499.9511,
         "eta_duration" : 278,    
     },
      {
@@ -112,6 +114,7 @@ bus = [
         "arrival_station" : "FGT",
         "arrival_line" : "edc1ecd6-2bf8-4b08-8727-385bb8943b9d",
         "next_station" : "PUF",
+        "next_dist" : 798.5582,
         "eta_duration" : 165,    
     },
      {
@@ -120,6 +123,7 @@ bus = [
         "arrival_station" : "PUF",
         "arrival_line" : "edc1ecd6-2bf8-4b08-8727-385bb8943b9d",
         "next_station" : "RVV",
+        "next_dist" : 463.7633,
         "eta_duration" : 89,    
     },
  ]

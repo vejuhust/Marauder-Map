@@ -26,7 +26,7 @@ __Line__ represents bus routes, the same route with different directions should 
 | direction      | string           | usually last station          |
 | time_start     | datetime         | departure time of the first bus |
 | time_end       | datetime         | departure time of the last bus |
-| duration       | datetime         | ideal time interval between two buses |
+| duration       | int              | ideal time (in seconds) interval between two buses |
 | is_active*     | boolean          | is it available now           |
 | shape_lat      | double [ ]       | latitude of shape points      |
 | shape_long     | double [ ]       | longitude of shape points     |
@@ -54,7 +54,9 @@ __Bus__ represents buses, it might service in different __lines__ at different t
 | history_station | station.id [ ]  | history of arrival_station    |
 | history_line   | line.guid [ ]    | history of arrival_line       |
 | next_station*  | station.id       | id of next station on the route |
-| eta_duration*  | datetime         | estimated time (duration) of arrival |
+| next_dist*     | double           | distance to travel before arrived at the next station |
+| eta_duration*  | int              | estimated time (duration, in seconds) of arrival |
+
 
 
 ### Station
