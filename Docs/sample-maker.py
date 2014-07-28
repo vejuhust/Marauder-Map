@@ -5,12 +5,21 @@ import sys
 import re
 import urllib2
 import json
+import time
+from datetime import datetime
 
-# 320500011014    320500011014,6:00:00,6:00:00,BG200001PH,0,,0,0,0.0
-#   BG200001PH,,独墅湖高教区首末站,,31.267248,120.748301,,,0,SBG200001PE
-# 320500011013    320500011013,6:30:00,6:30:00,BG2000035L,0,,0,0,0.0
-#                 320500011013,6:35:04,6:35:04,BG200006A5,3,,0,0,730.5372
-#   BG2000035L,,沪宁城铁园区站,,31.341645,120.708744,,,0,SBG2000035L
+
+def string_to_timestamp(timestr, is_past = False):
+    stamp_now = time.time()
+    date_now = datetime.fromtimestamp(stamp_now)
+    datestr = "%d-%d-%dT%s" % (date_now.year, date_now.month, date_now.day, timestr)
+    date_target = datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S')
+    stamp_target = time.mktime(date_target.timetuple())
+    if is_past:
+        if stamp_target > stamp_now:
+            stamp_target -= 24 * 60 * 60
+    return stamp_target
+
 
 line = [
     {
@@ -18,8 +27,8 @@ line = [
         "sibling"   : "edc1ecd6-2bf8-4b08-8727-385bb8943b9d", 
         "name"      : "115",
         "direction" : u"沪宁城铁园区站=>独墅湖高教区首末站",      #320500011013
-        "time_start": "06:30:00",
-        "time_end"  : "22:20:00",
+        "time_start": string_to_timestamp("06:30:00"),
+        "time_end"  : string_to_timestamp("22:20:00"),
         "duration"  : "1200",
         "is_active" : True,
         "shape"     : [
@@ -50,8 +59,8 @@ line = [
         "sibling"   : "e31d7bb3-ba4c-4e24-85e8-95e9d0f4d49e", 
         "name"      : "115",
         "direction" : u"独墅湖高教区首末站=>沪宁城铁园区站广场",   #320500011014
-        "time_start": "06:30:00",
-        "time_end"  : "22:15:00",
+        "time_start": string_to_timestamp("06:30:00"),
+        "time_end"  : string_to_timestamp("22:15:00"),
         "duration"  : "1200",
         "is_active" : True,
         "shape"     : [
@@ -83,7 +92,7 @@ line = [
 bus = [
     {
         "tag" : u"苏E-2N305",
-        "arrival_time" : "18:11:37",
+        "arrival_time" : string_to_timestamp("18:11:37", True),
         "arrival_station" : "PPX",
         "arrival_line" : "e31d7bb3-ba4c-4e24-85e8-95e9d0f4d49e",
         "next_station" : "RBC",
@@ -91,7 +100,7 @@ bus = [
     },
     {
         "tag" : u"苏E-2N288",
-        "arrival_time" : "18:10:30",
+        "arrival_time" : string_to_timestamp("18:10:30", True),
         "arrival_station" : "RBC",
         "arrival_line" : "e31d7bb3-ba4c-4e24-85e8-95e9d0f4d49e",
         "next_station" : "PPU",
@@ -99,7 +108,7 @@ bus = [
     },
      {
         "tag" : u"苏E-2N286",
-        "arrival_time" : "18:11:18",
+        "arrival_time" : string_to_timestamp("18:11:18", True),
         "arrival_station" : "FGT",
         "arrival_line" : "edc1ecd6-2bf8-4b08-8727-385bb8943b9d",
         "next_station" : "PUF",
@@ -107,7 +116,7 @@ bus = [
     },
      {
         "tag" : u"苏E-2N279",
-        "arrival_time" : "18:11:37",
+        "arrival_time" : string_to_timestamp("18:11:37", True),
         "arrival_station" : "PUF",
         "arrival_line" : "edc1ecd6-2bf8-4b08-8727-385bb8943b9d",
         "next_station" : "RVV",
