@@ -12,6 +12,7 @@ data_extension = ".txt"
 
 line_info_filename = "Merged/line_info.json"
 line_route_filename = "Merged/line_route.json"
+station_filename = "Merged/station_all.json"
 
 
 def load_json(filename):
@@ -52,7 +53,23 @@ def convert_geo_station(geo_stop_list):
     return station
 
 
-def search_sibling_line(given_id):
+def convert_geo_line(geo_stop_time):
+    station = {}
+    for item in geo_stop_time:
+        item_new = {
+            "trip_id" : item["trip_id"],
+            "station_id" : item["stop_id"],
+            "dist" : item["shape_dist_traveled"],
+            "shape_index" : item["stop_sequence"],
+        }
+        if item["trip_id"] not in station:
+            station[ item["trip_id"] ] = [ item_new ]
+        else:
+            station[ item["trip_id"] ].append(item_new)
+    return station
+
+
+def search_sibling_route_index(given_id):
     id_set = set()
     for item in geo_trip:
         if (item["route_id"] == given_id) and (item["trip_id"] != given_id):
@@ -62,39 +79,27 @@ def search_sibling_line(given_id):
     return list(id_set)
 
 
-def search_line_by_name(keyword):
+def search_route_index_by_name(keyword):
+    if (not keyword.endswith(u"号")) and (not keyword.endswith(u"路")):
+        keyword += u"路"
     lines = []
-    for route in geo_route:
+    for route in geo_route_index:
         if keyword in route["route_short_name"]:
             name = route["route_short_name"]
-            route_id = route["route_id"]
-            route2_id = search_sibling_line(route_id)[0]
-            if route_id > route2_id:
-                route_id, route2_id = route2_id, route_id
-            lines.append({"name" : name, "line_id1" : route_id, "line_id2" : route2_id})
+            route1_id = route["route_id"]
+            route2_id = search_sibling_route_index(route1_id)[0]
+            if route1_id > route2_id:
+                route1_id, route2_id = route2_id, route1_id
+            lines.append({"name" : name, "route1_id" : route1_id, "route2_id" : route2_id})
     return lines
 
 
-def list_line_station(line_id):
-    count = 0
-    for item in geo_stop_time:
-        if item["trip_id"] == line_id:
-            count += 1
-            print count, item["stop_sequence"], item["shape_dist_traveled"], item["stop_id"], geo_station[item["stop_id"]]["name"]
+def diff_station(m_station, g_station):
+    pass
 
 
-def list_line_by_name(name):
-    # Search lines by name
-    if not name.endswith(u"号"):
-        name += u"路"
-    result_lines = search_line_by_name(name)
-    print json.dumps(result_lines, indent = 4)
-    # List all stations on the line 1
-    print "\n", result_lines[-1]['name'], result_lines[-1]['line_id1']
-    result_stations = list_line_station(result_lines[-1]['line_id1'])
-    # List all stations on the line 2
-    print "\n", result_lines[-1]['name'], result_lines[-1]['line_id2']
-    result_stations = list_line_station(result_lines[-1]['line_id2'])
+def diff_line(m_line, g_line):
+    return "%d~%d" % (len(m_line), len(g_line))
 
 
 if __name__ == '__main__':
@@ -104,33 +109,40 @@ if __name__ == '__main__':
         if filename.endswith(data_extension):
             name = filename[:-len(data_extension)]
             data_all[name] = load_csv(data_directory + filename)
+
     # Keep what we need
     geo_freq = data_all["frequencies"]
-    geo_route = data_all["routes"]
+    geo_route_index = data_all["routes"]
     geo_shape = data_all["shapes"]
     geo_stop_time = data_all["stop_times"]
     geo_stop_list = data_all["stops"]
     geo_trip = data_all["trips"]
+
     # Preview the result
-    names = ['geo_freq', 'geo_route', 'geo_shape', 'geo_stop_time', 'geo_stop_list', 'geo_trip']
+    names = ['geo_freq', 'geo_route_index', 'geo_shape', 'geo_stop_time', 'geo_stop_list', 'geo_trip']
     for name in names:
         print name, len(eval(name)), json.dumps(eval(name)[0], indent = 4, sort_keys = True)
+
     # Convert geo* data
     geo_station = convert_geo_station(geo_stop_list)
-
-#    # Search
-#    list_line_by_name(u"快线2号")
+    geo_line = convert_geo_line(geo_stop_time)
+    print len(geo_line)
 
     # Load existing data
     merged_line = load_json(line_info_filename)
     merged_route = load_json(line_route_filename)
+    merged_station = load_json(station_filename)
+
+    # Merge geo_* with merged_*
     for item in merged_route:
-        line = merged_route[item]["list"]
-        name = line["LName"]
-        direction = line["LDirection"]
-        stands = len(line["StandInfo"])
-        first_sname = line["StandInfo"][0]["SName"]
-        last_sname = line["StandInfo"][-1]["SName"]
-        print name, direction, stands, first_sname, last_sname
-        list_line_by_name(name)
+        m_line = merged_route[item]["list"]
+        m_name = m_line["LName"]
+        m_guid = m_line["LGUID"]
+        m_direction = m_line["LDirection"]
+        m_station = m_line["StandInfo"]
+        candidate_route_index = search_route_index_by_name(m_name)
+        print m_name, m_direction, m_guid, len(m_station), len(candidate_route_index)
+        for item in candidate_route_index:
+            print "\t", item["name"], item["route1_id"], diff_line(m_station, geo_line[item["route1_id"]])
+            print "\t", item["name"], item["route2_id"], diff_line(m_station, geo_line[item["route2_id"]])
 
