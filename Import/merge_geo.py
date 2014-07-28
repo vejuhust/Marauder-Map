@@ -59,6 +59,7 @@ def convert_geo_line(geo_stop_time):
         item_new = {
             "trip_id" : item["trip_id"],
             "station_id" : item["stop_id"],
+            "station_name" : geo_station[item["stop_id"]]["name"],
             "dist" : item["shape_dist_traveled"],
             "shape_index" : item["stop_sequence"],
         }
@@ -95,11 +96,29 @@ def search_route_index_by_name(keyword):
 
 
 def diff_station(m_station, g_station):
-    pass
+    m_name = m_station["SName"]
+    g_name = g_station["station_name"]
+    len_m = len(m_name)
+    len_g = len(g_name)
+    min_len = len_m if len_m <= len_g else len_g
+    result = False if m_name[:min_len] == g_name[:min_len] else True
+    return result
 
 
-def diff_line(m_line, g_line):
-    return "%d~%d" % (len(m_line), len(g_line))
+def diff_station_count(m_line, g_line, display = False):
+    counter = 0
+    len_m = len(m_line)
+    len_g = len(g_line)
+    max_index = len_m if len_m <= len_g else len_g
+    for index in range(max_index):
+        is_diff = diff_station(m_line[index], g_line[index])
+        if is_diff:
+            counter += 1
+        if display:
+            mark = "[x]" if is_diff else "[ ]"
+            print "\t %s %s %s" % (mark, m_line[index]["SName"], g_line[index]["station_name"])
+
+    return counter
 
 
 if __name__ == '__main__':
@@ -135,14 +154,32 @@ if __name__ == '__main__':
 
     # Merge geo_* with merged_*
     for item in merged_route:
+        # Basic info of merged_line
         m_line = merged_route[item]["list"]
         m_name = m_line["LName"]
         m_guid = m_line["LGUID"]
         m_direction = m_line["LDirection"]
         m_station = m_line["StandInfo"]
+        # Search for similar geo_line
         candidate_route_index = search_route_index_by_name(m_name)
         print m_name, m_direction, m_guid, len(m_station), len(candidate_route_index)
+        match_id = ""
+        match_name = ""
+        match_diff = len(m_station)
+        # Compare the similarity
         for item in candidate_route_index:
-            print "\t", item["name"], item["route1_id"], diff_line(m_station, geo_line[item["route1_id"]])
-            print "\t", item["name"], item["route2_id"], diff_line(m_station, geo_line[item["route2_id"]])
+            for route_id in [item["route1_id"], item["route2_id"]]:
+                diff_count = diff_station_count(m_station, geo_line[route_id])
+                if diff_count < match_diff:
+                    match_diff = diff_count
+                    match_id = route_id
+                    match_name = item["name"]
+        if match_diff == 0:
+            merged_line[m_guid]["geo_id"] = match_id
+
+    # Filter
+    for item in merged_line:
+        line = merged_line[item]
+        if 'geo_id' in line:
+            print json.dumps(line, indent = 4)
 
