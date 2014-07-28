@@ -6,8 +6,20 @@ import os
 import json
 import codecs
 
+
 data_directory = "../Data/Internal/"
 data_extension = ".txt"
+
+line_info_filename = "Merged/line_info.json"
+line_route_filename = "Merged/line_route.json"
+
+
+def load_json(filename):
+    file = open(filename, 'r')
+    content = file.read()
+    file.close()
+    return json.loads(content)
+
 
 def load_csv(filename):
     # Read file
@@ -73,7 +85,9 @@ def list_line_station(line_id):
 
 def list_line_by_name(name):
     # Search lines by name
-    result_lines = search_line_by_name(name + u"路")
+    if not name.endswith(u"号"):
+        name += u"路"
+    result_lines = search_line_by_name(name)
     print json.dumps(result_lines, indent = 4)
     # List all stations on the line 1
     print "\n", result_lines[-1]['name'], result_lines[-1]['line_id1']
@@ -104,7 +118,19 @@ if __name__ == '__main__':
     # Convert geo* data
     geo_station = convert_geo_station(geo_stop_list)
 
-    # Search
-    list_line_by_name(u"128")
+#    # Search
+#    list_line_by_name(u"快线2号")
 
+    # Load existing data
+    merged_line = load_json(line_info_filename)
+    merged_route = load_json(line_route_filename)
+    for item in merged_route:
+        line = merged_route[item]["list"]
+        name = line["LName"]
+        direction = line["LDirection"]
+        stands = len(line["StandInfo"])
+        first_sname = line["StandInfo"][0]["SName"]
+        last_sname = line["StandInfo"][-1]["SName"]
+        print name, direction, stands, first_sname, last_sname
+        list_line_by_name(name)
 
