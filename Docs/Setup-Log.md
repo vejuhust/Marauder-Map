@@ -57,3 +57,10 @@ It contains refined details of the stations:
 | geo_side | On which side of the road  | 西  | 
 | geo_road | Address of the station  | 工业园区林泉街近仁爱路-文景街交叉口处  | 
 
+
+## Merge Internal Data
+
+Use `../Import/merge_geo.py` with internal data to generate `../Import/Merged/geo_line.json` and `../Import/Merged/geo_station.json`.        
+
+It contains all the raw data of Line/Bus required in `../Docs/Database-Design.md`.
+

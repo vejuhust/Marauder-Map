@@ -319,3 +319,8 @@ if __name__ == '__main__':
     # Save output
     save_file(output_station_filename, merged_station)
     save_file(output_line_filename, merged_line)
+#    save_file("tmp_geo_station.json", geo_station)
+#    save_file("tmp_geo_line.json", geo_line)
+#    save_file("tmp_merged_station.json", merged_station)
+#    save_file("tmp_merged_line.json", merged_line)
+
