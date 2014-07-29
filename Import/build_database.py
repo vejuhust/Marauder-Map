@@ -94,8 +94,13 @@ def create_line_node(line_data):
             "lat": shape_lat[index],
             "long": shape_long[index]
         })
-    save_json("line_" + line_data["name"] + "_" + line_data["guid"] + ".js", { "shape" : data })
+    #save_json("line_" + line_data["name"] + "_" + line_data["guid"] + ".js", { "shape" : data })
 
+
+def create_line_sibling_rel(guid1, guid2):
+    line1, = graph_db.find("Line", property_key = "guid", property_value = guid1)
+    line2, = graph_db.find("Line", property_key = "guid", property_value = guid2)
+    graph_db.create(rel(line1, "SIBLING_LINE", line2))
 
 
 if __name__ == '__main__':
@@ -114,4 +119,11 @@ if __name__ == '__main__':
     line_selected = [ dataset_line[line_id] for line_id in dataset_line if "geo_line_id" in dataset_line[line_id] ]
     for line in line_selected:
         create_line_node(line)
+
+    # Create rels for sibling line nodes
+    for line in line_selected:
+        guid1 = line["guid"]
+        guid2 = line["sibling"]
+        create_line_sibling_rel(guid1, guid2)
+
 
