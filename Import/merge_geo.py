@@ -246,6 +246,22 @@ if __name__ == '__main__':
                 station_id.append(station["SCode"].upper().strip())
             line["station"] = station_id
 
+    # Connect sibling lines
+    sibling_line = {}
+    for item in merged_line:
+        line = merged_line[item]
+        if "geo_line_id" in line:
+            if line["name"] not in sibling_line:
+                sibling_line[line["name"]] = [ line["guid"] ]
+            else:
+                sibling_line[line["name"]].append(line["guid"])
+    for item in sibling_line:
+        pair = sibling_line[item]
+        if len(pair) == 2:
+            merged_line[pair[0]]["sibling"] = pair[1]
+            merged_line[pair[1]]["sibling"] = pair[0]
+
+
 #    # Save output
 #    save_file("tmp_geo_station.json", geo_station)
 #    save_file("tmp_geo_line.json", geo_line)
