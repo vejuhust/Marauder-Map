@@ -40,6 +40,12 @@ def load_csv(filename):
     return data
 
 
+def save_file(filename, data):
+    file = open(filename, 'w')
+    file.write(json.dumps(data, sort_keys = True, indent = 4, ensure_ascii = False).encode('utf-8'))
+    file.close()
+
+
 def convert_geo_station(geo_stop_list):
     station = {}
     for item in geo_stop_list:
@@ -48,7 +54,7 @@ def convert_geo_station(geo_stop_list):
             "name" : item["stop_name"],
             "lat" : item["stop_lat"],
             "long" : item["stop_lon"],
-            "sibling" : item["parent_station"]
+            "parent" : item["parent_station"]
         }
     return station
 
@@ -121,6 +127,36 @@ def diff_station_count(m_line, g_line, display = False):
     return counter
 
 
+def connect_sibling_station(station1):
+    station1_id = station1["station_id"]
+    parent = station1["parent"]
+    for item in geo_station:
+        station2 = geo_station[item]
+        if (station1["parent"] == station2["parent"]) and (station1["name"] == station2["name"]) and (station1["station_id"] != station2["station_id"]):
+            station1["sibling"] = station2["station_id"]
+            station2["sibling"] = station1["station_id"]
+            break
+
+
+def merge_station(m_station, g_station):
+    g_station = geo_station[g_station["station_id"]]
+    g_station["guid"] = m_station["SCode"]
+    m_station = merged_station[m_station["SCode"]]
+    m_station["geo_station_id"] = g_station["station_id"]
+    m_station["geo_lat"] = g_station["lat"]
+    m_station["geo_long"] = g_station["long"]
+    connect_sibling_station(g_station)
+
+
+def merge_line_station(m_line, g_line):
+    counter = 0
+    len_m = len(m_line)
+    len_g = len(g_line)
+    max_index = len_m if len_m <= len_g else len_g
+    for index in range(max_index):
+        merge_station(m_line[index], g_line[index])
+
+
 if __name__ == '__main__':
     # Load all the data
     data_all = {}
@@ -152,7 +188,7 @@ if __name__ == '__main__':
     merged_route = load_json(line_route_filename)
     merged_station = load_json(station_filename)
 
-    # Merge geo_* with merged_*
+    # Match route_id and merged_line by station name
     for item in merged_route:
         # Basic info of merged_line
         m_line = merged_route[item]["list"]
@@ -162,7 +198,7 @@ if __name__ == '__main__':
         m_station = m_line["StandInfo"]
         # Search for similar geo_line
         candidate_route_index = search_route_index_by_name(m_name)
-        print m_name, m_direction, m_guid, len(m_station), len(candidate_route_index)
+        #print m_name, m_direction, m_guid, len(m_station), len(candidate_route_index)
         match_id = ""
         match_name = ""
         match_diff = len(m_station)
@@ -175,11 +211,15 @@ if __name__ == '__main__':
                     match_id = route_id
                     match_name = item["name"]
         if match_diff == 0:
-            merged_line[m_guid]["geo_id"] = match_id
+            merged_line[m_guid]["geo_line_id"] = match_id
 
-    # Filter
+    # Merge the stations in matched lines
     for item in merged_line:
         line = merged_line[item]
-        if 'geo_id' in line:
-            print json.dumps(line, indent = 4)
+        if "geo_line_id" in line:
+            m_line = merged_route[line["guid"]]["list"]["StandInfo"]
+            g_line = geo_line[line["geo_line_id"]]
+            merge_line_station(m_line, g_line)
 
+#    # Save output
+#    save_file("tmp.json", merged_station)
