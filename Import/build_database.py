@@ -13,6 +13,10 @@ delete all:
 match (n)-[r]->() delete n,r;
 match (n) delete n;
 
+create index:
+create index on :Line(guid);
+create index on :Station(code);
+
 
 """
 
@@ -51,6 +55,10 @@ def database_reset():
 
 
 def create_line_node(line_data):
+    # Check if already created
+    node_existed = graph_db.find("Line", property_key = "guid", property_value = line_data["guid"])
+    if list(node_existed):
+        return
     # Prepare shape arrays
     shape_station, shape_time, shape_dist, shape_lat, shape_long = [], [], [], [], []
     time_baseline = None
@@ -103,6 +111,21 @@ def create_line_sibling_rel(guid1, guid2):
     graph_db.create(rel(line1, "SIBLING_LINE", line2))
 
 
+def create_station_node(station_data):
+    node_existed = graph_db.find("Station", property_key = "code", property_value = station_data["code"])
+    if not list(node_existed):
+        station_node = node(
+            code = station_data["code"],
+            name = station_data["name"],
+            geo_road = station_data["geo_road"],
+            geo_side = station_data["geo_side"],
+            geo_lat = float(station_data["geo_lat"]),
+            geo_long = float(station_data["geo_long"]),
+        )
+        station_node, = graph_db.create(station_node)
+        station_node.add_labels("Station")
+
+
 if __name__ == '__main__':
     # Load merged data
     dataset_station = load_json(input_station_filename)
@@ -126,4 +149,10 @@ if __name__ == '__main__':
         guid2 = line["sibling"]
         create_line_sibling_rel(guid1, guid2)
 
-
+    # Create station for lines:
+    for line in line_selected:
+        station_code = line["station"]
+        for code in station_code:
+            station_data = dataset_station[code]
+            create_station_node(station_data)
+    
