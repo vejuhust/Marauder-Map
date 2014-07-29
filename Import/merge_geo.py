@@ -68,6 +68,7 @@ def convert_geo_line(geo_stop_time):
             "station_name" : geo_station[item["stop_id"]]["name"],
             "dist" : item["shape_dist_traveled"],
             "shape_index" : item["stop_sequence"],
+            "arrival_time" : item["arrival_time"],
         }
         if item["trip_id"] not in station:
             station[ item["trip_id"] ] = [ item_new ]
@@ -168,6 +169,7 @@ def merge_line_shape(m_line, g_line):
             if int(station["shape_index"]) == int(shape["shape_pt_sequence"]):
                 shape["shape_station"] = station["station_id"]
                 shape["shape_code"] = geo_station[station["station_id"]]["code"]
+                shape["shape_time"] = station["arrival_time"]
                 break
     m_line["shape"] = shapes
 
