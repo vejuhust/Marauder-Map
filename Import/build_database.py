@@ -30,6 +30,12 @@ def load_json(filename):
     return json.loads(content)
 
 
+def save_json(filename, data):
+    file = open(filename, 'w')
+    file.write(json.dumps(data, sort_keys = True, indent = 4, ensure_ascii = False).encode('utf-8'))
+    file.close()
+
+
 # Convert time like "7:10:00" into Unix Timestamp
 stamp_now = time.time()
 date_now = datetime.fromtimestamp(stamp_now)
@@ -78,6 +84,17 @@ def create_line_node(line_data):
     line_node, = graph_db.create(line_node)
     # Add label
     line_node.add_labels("Line")
+    # Save in a JSON
+    data = []
+    for index in range(len(shape_station)):
+        data.append({
+            "station" : shape_station[index],
+            "time": shape_time[index],
+            "dist": shape_dist[index],
+            "lat": shape_lat[index],
+            "long": shape_long[index]
+        })
+    save_json("line_" + line_data["name"] + "_" + line_data["guid"] + ".js", { "shape" : data })
 
 
 
@@ -98,6 +115,3 @@ if __name__ == '__main__':
     for line in line_selected:
         create_line_node(line)
 
-
-
-#print json.dumps(dataset_line, indent=4)
