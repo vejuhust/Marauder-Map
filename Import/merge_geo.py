@@ -262,11 +262,22 @@ if __name__ == '__main__':
     for item in merged_line:
         line = merged_line[item]
         if "geo_line_id" in line:
+            # Station IDs
             station_list = merged_route[item]["list"]["StandInfo"]
             station_id = []
             for station in station_list:
                 station_id.append(station["SCode"].upper().strip())
             line["station"] = station_id
+            # Start/End time, duration
+            for freq in geo_freq:
+                if freq["trip_id"] == line["geo_line_id"]:
+                    break
+            else:
+                freq = None
+            if freq:
+                line["time_start"] = freq["start_time"]
+                line["time_end"] = freq["end_time"]
+                line["duration"] = freq["headway_secs"]
 
     # Connect sibling lines
     sibling_line = {}
