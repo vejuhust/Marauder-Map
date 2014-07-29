@@ -27,6 +27,12 @@ input_line_filename = "Merged/geo_line.json"
 graph_db = neo4j.GraphDatabaseService("http://localhost:7474/db/data/")
 
 
+LABEL_STATION = "Station"
+LABEL_LINE = "Line"
+REL_STATION_SIBLING = "SIBLING_STATION"
+REL_LINE_SIBLING = "SIBLING_LINE"
+
+
 def load_json(filename):
     file = open(filename, 'r')
     content = file.read()
@@ -56,7 +62,7 @@ def database_reset():
 
 def create_line_node(line_data):
     # Check if already created
-    node_existed = graph_db.find("Line", property_key = "guid", property_value = line_data["guid"])
+    node_existed = graph_db.find(LABEL_LINE, property_key = "guid", property_value = line_data["guid"])
     if list(node_existed):
         return
     # Prepare shape arrays
@@ -91,7 +97,7 @@ def create_line_node(line_data):
     )
     line_node, = graph_db.create(line_node)
     # Add label
-    line_node.add_labels("Line")
+    line_node.add_labels(LABEL_LINE)
     # Save in a JSON
     data = []
     for index in range(len(shape_station)):
@@ -106,13 +112,13 @@ def create_line_node(line_data):
 
 
 def create_line_sibling_rel(guid1, guid2):
-    line1, = graph_db.find("Line", property_key = "guid", property_value = guid1)
-    line2, = graph_db.find("Line", property_key = "guid", property_value = guid2)
-    graph_db.create(rel(line1, "SIBLING_LINE", line2))
+    line1, = graph_db.find(LABEL_LINE, property_key = "guid", property_value = guid1)
+    line2, = graph_db.find(LABEL_LINE, property_key = "guid", property_value = guid2)
+    graph_db.create(rel(line1, REL_LINE_SIBLING, line2))
 
 
 def create_station_node(station_data):
-    node_existed = graph_db.find("Station", property_key = "code", property_value = station_data["code"])
+    node_existed = graph_db.find(LABEL_STATION, property_key = "code", property_value = station_data["code"])
     if not list(node_existed):
         station_node = node(
             code = station_data["code"],
@@ -123,7 +129,13 @@ def create_station_node(station_data):
             geo_long = float(station_data["geo_long"]),
         )
         station_node, = graph_db.create(station_node)
-        station_node.add_labels("Station")
+        station_node.add_labels(LABEL_STATION)
+
+
+def create_station_sibling_rel(code1, code2):
+    station1, = graph_db.find(LABEL_STATION, property_key = "code", property_value = code1)
+    station2, = graph_db.find(LABEL_STATION, property_key = "code", property_value = code2)
+    graph_db.create(rel(station1, REL_STATION_SIBLING, station2))
 
 
 if __name__ == '__main__':
@@ -155,4 +167,13 @@ if __name__ == '__main__':
         for code in station_code:
             station_data = dataset_station[code]
             create_station_node(station_data)
-    
+
+    # Create rels for sibling station nodes
+    station_selected = [ dataset_station[code] for code in dataset_station if "geo_station_id" in dataset_station[code] ]
+    for station in station_selected:
+        if "sibling" in station:
+            code1 = station["code"]
+            code2 = station["sibling"]
+            create_station_sibling_rel(code1, code2)
+
+
