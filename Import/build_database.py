@@ -31,6 +31,7 @@ LABEL_STATION = "Station"
 LABEL_LINE = "Line"
 REL_STATION_SIBLING = "SIBLING_STATION"
 REL_LINE_SIBLING = "SIBLING_LINE"
+REL_LINE_CONTAIN = "CONTAIN"
 
 
 def load_json(filename):
@@ -138,6 +139,22 @@ def create_station_sibling_rel(code1, code2):
     graph_db.create(rel(station1, REL_STATION_SIBLING, station2))
 
 
+def find_line_node(guid):
+    line, = graph_db.find(LABEL_LINE, property_key = "guid", property_value = guid)
+    assert list(line), "line node '%s' missing" % guid
+    return line
+
+
+def find_station_node(code):
+    station, = graph_db.find(LABEL_STATION, property_key = "code", property_value = code)
+    assert list(station), "station node '%s' missing" % code
+    return station
+
+
+def create_line_station_rel(line_node, station_node, number):
+    graph_db.create(rel(line_node, REL_LINE_CONTAIN, station_node, { "number" : number}))
+
+
 if __name__ == '__main__':
     # Load merged data
     dataset_station = load_json(input_station_filename)
@@ -176,4 +193,11 @@ if __name__ == '__main__':
             code2 = station["sibling"]
             create_station_sibling_rel(code1, code2)
 
+    # Create rels from line nodes to station nodes
+    for line in line_selected:
+        line_node = find_line_node(line["guid"])
+        station_code = line["station"]
+        for index, code in enumerate(station_code):
+            station_node = find_station_node(code)
+            create_line_station_rel(line_node, station_node, index)
 
