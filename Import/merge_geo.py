@@ -236,6 +236,16 @@ if __name__ == '__main__':
             merge_line_station(m_line, g_line)
             merge_line_shape(line, g_line)
 
+    # Merge merged_route into merged_line
+    for item in merged_line:
+        line = merged_line[item]
+        if "geo_line_id" in line:
+            station_list = merged_route[item]["list"]["StandInfo"]
+            station_id = []
+            for station in station_list:
+                station_id.append(station["SCode"].upper().strip())
+            line["station"] = station_id
+
 #    # Save output
 #    save_file("tmp_geo_station.json", geo_station)
 #    save_file("tmp_geo_line.json", geo_line)
