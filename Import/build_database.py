@@ -32,6 +32,7 @@ LABEL_LINE = "Line"
 REL_STATION_SIBLING = "SIBLING_STATION"
 REL_LINE_SIBLING = "SIBLING_LINE"
 REL_LINE_CONTAIN = "CONTAIN"
+REL_STATION_CONNECT = "CONNECT_BY_"
 
 
 def load_json(filename):
@@ -83,7 +84,7 @@ def create_line_node(line_data):
         shape_time.append(time_offset)
     # Create a node
     line_node = node(
-        guid = line_data["guid"],
+        guid = line_data["guid"].lower().strip(),
         name = line_data["name"],
         direction = line_data["direction"],
         time_start = line_data["time_start"],
@@ -122,7 +123,7 @@ def create_station_node(station_data):
     node_existed = graph_db.find(LABEL_STATION, property_key = "code", property_value = station_data["code"])
     if not list(node_existed):
         station_node = node(
-            code = station_data["code"],
+            code = station_data["code"].upper().strip(),
             name = station_data["name"],
             geo_road = station_data["geo_road"],
             geo_side = station_data["geo_side"],
@@ -153,6 +154,10 @@ def find_station_node(code):
 
 def create_line_station_rel(line_node, station_node, number):
     graph_db.create(rel(line_node, REL_LINE_CONTAIN, station_node, { "number" : number}))
+
+
+def create_station_station_rel(node1, node2, line_guid):
+    graph_db.create(rel(node1, REL_STATION_CONNECT + line_guid, node2))
 
 
 if __name__ == '__main__':
@@ -200,4 +205,13 @@ if __name__ == '__main__':
         for index, code in enumerate(station_code):
             station_node = find_station_node(code)
             create_line_station_rel(line_node, station_node, index)
+
+    # Create rels from station node to station node
+    for line in line_selected:
+        line_guid = line["guid"]
+        station_code = line["station"]
+        for index in range(len(station_code) - 1):
+            station1_node = find_station_node(station_code[index])
+            station2_node = find_station_node(station_code[index + 1])
+            create_station_station_rel(station1_node, station2_node, line_guid)
 
