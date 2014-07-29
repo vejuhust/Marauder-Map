@@ -172,6 +172,26 @@ def merge_line_shape(m_line, g_line):
     m_line["shape"] = shapes
 
 
+def find_merged_station_by_geo_id(geo_station_id):
+    result = None
+    for item in merged_station:
+        station = merged_station[item]
+        if ("geo_station_id" in station) and (station["geo_station_id"] == geo_station_id):
+            result = station
+            break
+    return result
+
+
+def count_unconnected_station(display = False):
+    counter = 0
+    for item in merged_station:
+        station = merged_station[item]
+        if "geo_station_id" in station and "sibling" not in station:
+            if display:
+                print json.dumps(station, indent = 4)
+            counter += 1
+    print "unconnected station", counter
+
 if __name__ == '__main__':
     # Load all the data
     data_all = {}
@@ -261,6 +281,24 @@ if __name__ == '__main__':
             merged_line[pair[0]]["sibling"] = pair[1]
             merged_line[pair[1]]["sibling"] = pair[0]
 
+    # Connect sibling stations
+    count_unconnected_station()
+
+    for item in merged_station:
+        station1 = merged_station[item]
+        if "geo_station_id" in station1:
+            station1_geo = geo_station[station1["geo_station_id"]]
+            if "sibling" in station1_geo:
+                station2_geo = geo_station[station1_geo["sibling"]]
+                if "code" in station2_geo:
+                    station2 = merged_station[station2_geo["code"]]
+                else:
+                    station2 = find_merged_station_by_geo_id(station1_geo["sibling"])
+                if station2:
+                    station1["sibling"] = station2["code"]
+                    station2["sibling"] = station1["code"]
+
+    count_unconnected_station()
 
 #    # Save output
 #    save_file("tmp_geo_station.json", geo_station)
