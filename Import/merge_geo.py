@@ -140,7 +140,7 @@ def connect_sibling_station(station1):
 
 def merge_station(m_station, g_station):
     g_station = geo_station[g_station["station_id"]]
-    g_station["guid"] = m_station["SCode"]
+    g_station["code"] = m_station["SCode"]
     m_station = merged_station[m_station["SCode"]]
     m_station["geo_station_id"] = g_station["station_id"]
     m_station["geo_lat"] = g_station["lat"]
@@ -155,6 +155,21 @@ def merge_line_station(m_line, g_line):
     max_index = len_m if len_m <= len_g else len_g
     for index in range(max_index):
         merge_station(m_line[index], g_line[index])
+
+
+def merge_line_shape(m_line, g_line):
+    trip_id = m_line["geo_line_id"]
+    shapes = []
+    for shape in geo_shape:
+        if shape["shape_id"] == trip_id:
+            shapes.append(shape)
+    for station in g_line:
+        for shape in shapes:
+            if int(station["shape_index"]) == int(shape["shape_pt_sequence"]):
+                shape["shape_station"] = station["station_id"]
+                shape["shape_code"] = geo_station[station["station_id"]]["code"]
+                break
+    m_line["shape"] = shapes
 
 
 if __name__ == '__main__':
@@ -181,7 +196,6 @@ if __name__ == '__main__':
     # Convert geo* data
     geo_station = convert_geo_station(geo_stop_list)
     geo_line = convert_geo_line(geo_stop_time)
-    print len(geo_line)
 
     # Load existing data
     merged_line = load_json(line_info_filename)
@@ -220,6 +234,10 @@ if __name__ == '__main__':
             m_line = merged_route[line["guid"]]["list"]["StandInfo"]
             g_line = geo_line[line["geo_line_id"]]
             merge_line_station(m_line, g_line)
+            merge_line_shape(line, g_line)
 
 #    # Save output
-#    save_file("tmp.json", merged_station)
+#    save_file("tmp_geo_station.json", geo_station)
+#    save_file("tmp_geo_line.json", geo_line)
+#    save_file("tmp_merged_station.json", merged_station)
+#    save_file("tmp_merged_line.json", merged_line)
