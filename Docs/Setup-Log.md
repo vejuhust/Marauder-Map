@@ -69,3 +69,12 @@ It contains all the raw data of Line/Bus required in `../Docs/Database-Design.md
 
 Use `../Import/build_database.py` along with `../Import/Merged/geo_line.json` and `../Import/Merged/geo_station.json` which were just generated. 
 
+
+## Set up Crawler for Real-time Bus Info    
+
+1. Make sure Neo4j database is up and running.                
+2. `sudo pip install py2neo` to install py2neo library for Python.            
+3. Add `../Crawlers/Realtime/crawl_bus.sh` as a `crontab` task to run periodically (usually one minute).            
+
+
+
