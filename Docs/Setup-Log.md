@@ -64,3 +64,8 @@ Use `../Import/merge_geo.py` with internal data to generate `../Import/Merged/ge
 
 It contains all the raw data of Line/Bus required in `../Docs/Database-Design.md`.
 
+
+## Build the Database With Line & Station Data
+
+Use `../Import/build_database.py` along with `../Import/Merged/geo_line.json` and `../Import/Merged/geo_station.json` which were just generated. 
+
