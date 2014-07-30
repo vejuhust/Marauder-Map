@@ -135,6 +135,7 @@ def create_bus_station_rel(bus_node, station_node):
 
 def clear_bus_rels(tag):
     query = neo4j.CypherQuery(graph_db, "MATCH (bus:%s)-[r]->() WHERE bus.tag = '%s' DELETE r;" % (LABEL_BUS, tag))
+    query.stream()
 
 
 def update_database_bus_info(bus):
@@ -144,7 +145,7 @@ def update_database_bus_info(bus):
     # Check if bus node exists
     if check_exist_bus_node(tag):
         # Get it and updates
-        bus_node = get_bus_node(bus["tag"])
+        bus_node = get_bus_node(tag)
         bus_node["arrival_time"] = bus["arrival_time"]
         bus_node["arrival_station"] = bus["arrival_station"]
         bus_node["arrival_line"] = bus["arrival_line"]
