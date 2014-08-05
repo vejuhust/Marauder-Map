@@ -1,3 +1,11 @@
 .DS_Store
 __MACOSX
 *.pyc
+
+Data/External/*.txt
+Data/External/*.json
+
+Data/Internal/*.txt
+Data/Internal/*.json
+
+Import/Merged/*.json
