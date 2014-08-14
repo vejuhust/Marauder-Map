@@ -9,3 +9,6 @@ Data/Internal/*.txt
 Data/Internal/*.json
 
 Import/Merged/*.json
+
+Tutorial/*.json
+
